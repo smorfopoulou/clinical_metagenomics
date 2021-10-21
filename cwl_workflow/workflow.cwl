@@ -41,6 +41,8 @@ inputs:
     type: float?
   accession2taxid:
     type: File
+  accession2taxid_prot:
+    type: File
   Human_Bowtie_Reference:
     type: File
   tar_tool_2__extractdirectory:
@@ -79,6 +81,8 @@ inputs:
     type: int?
   names:
     type: File
+  names.dmp_prot:
+    type: File
   tar_tool__extractdirectory:
     type: string
   Human_Blast_DB:
@@ -100,8 +104,14 @@ outputs:
   metamix__presentSpecies_assignedReads:
     outputSource: metamix/presentSpecies_assignedReads
     type: File
+  metamix_prot__presentSpecies_assignedReads:
+    outputSource: metamix_prot/presentSpecies_assignedReads
+    type: File
   metamix__logLikelihood_traceplot_all:
     outputSource: metamix/logLikelihood_traceplot_all
+    type: File
+  metamix_prot__logLikelihood_traceplot_all:
+    outputSource: metamix_prot/logLikelihood_traceplot_all
     type: File
   blastn__result:
     outputSource: blastn/result
@@ -130,11 +140,17 @@ outputs:
   metamix__histograms_cdf:
     outputSource: metamix/histograms_cdf
     type: File
+  metamix_prot__histograms_cdf:
+    outputSource: metamix_prot/histograms_cdf
+    type: File
   trim_galore__fastq_R2:
     outputSource: trim_galore/fastq_R2
     type: File
   metamix__allreads_classified:
     outputSource: metamix/allreads_classified
+    type: File
+  metamix_prot__allreads_classified:
+    outputSource: metamix_prot/allreads_classified
     type: File
   trim_galore__fastq_R1:
     outputSource: trim_galore/fastq_R1
@@ -144,6 +160,12 @@ outputs:
     type: File
   metamix__logLikelihood_traceplot_40:
     outputSource: metamix/logLikelihood_traceplot_40
+    type: File
+  metamix_prot__logLikelihood_traceplot_40:
+    outputSource: metamix_prot/logLikelihood_traceplot_40
+    type: File
+  metamix_prot__step2_species_annotated:
+    outputSource: metamix_prot/step2_species_annotated
     type: File
   blastn_2__result:
     outputSource: blastn_2/result
@@ -209,6 +231,20 @@ steps:
       read_lengths: awk/result
       nuclLength: nuclLength
       blast_output: blastn_4/result
+    out:
+    - allreads_classified
+    - histograms_cdf
+    - logLikelihood_traceplot_40
+    - logLikelihood_traceplot_all
+    - presentSpecies_assignedReads
+    - step2_species_annotated
+  metamix_prot:
+    run: metamix_prot.cwl
+    in:
+      accession2taxid: accession2taxid_prot
+      taxonomy_names: names.dmp_prot
+      read_lengths: awk/result
+      blast_output: diamond/result
     out:
     - allreads_classified
     - histograms_cdf

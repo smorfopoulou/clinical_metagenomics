@@ -12,53 +12,41 @@ requirements:
 - class: InitialWorkDirRequirement
   listing:
   - entry: $(inputs.blast_output)
-    entryname: blastoutput.tab
+    entryname: diamond.tab
     writable: false
   - entry: $(inputs.read_lengths)
-    entryname: read_lenghts.tsv
+    entryname: read_lengths.tsv
     writable: false
   - entry: $(inputs.accession2taxid)
     entryname: accession2taxid
-    writable: false
-  - entry: $(inputs.nuclLength)
-    entryname: nuclLength.tab
     writable: false
   - entry: $(inputs.taxonomy_names)
     entryname: names.dmp
     writable: false
   - entry: |-
       library(metaMix)
-      step1<-generative.prob.nucl(blast.output.file="blastoutput.tab",  outDir="./", blast.default=TRUE, read.length.file="read_lenghts.tsv", contig.weight.file=1,  accession.taxon.file="accession2taxid", genomeLength="nuclLength.tab")
+      step1<-generative.prob(blast.output.file="diamond.tab",  outDir="./",  blast.default=TRUE, read.length.file="read_lengths.tsv", contig.weight.file=1, gi.or.acc="acc", accession.taxon.file="accession2taxid")
       step2<-reduce.space(step1="step1.RData", taxon.name.map="names.dmp")
-      step3<-parallel.temper.nucl(step2="step2.RData", readSupport=10)
+      step3<-parallel.temper(step2="step2.RData", readSupport=10)
       step4<-bayes.model.aver(step2="step2.RData", step3="step3.RData", taxon.name.map="names.dmp")
     entryname: run_metamix.R
     writable: false
-  - entry: |-
-      #!/bin/bash
-      set -euo pipefail
-      echo -n "localhost slots=" > ./hostfile
-      nproc --all >> ./hostfile
-      mpirun $@
-    entryname: run.sh
+  - entry: localhost slots=24
+    entryname: hostfile
     writable: false
+- class: ResourceRequirement
+  coresMin: 12
+  ramMin: 10000
 hints:
 - class: DockerRequirement
   dockerPull: metamix:latest
-- class: ResourceRequirement
-  ilmn-tes:resources:
-    tier: standard
-    type: standardHiMem
-    size: large
-label: metamix
+label: metamix_protein
 inputs:
   blast_output:
     type: File
   read_lengths:
     type: File
   accession2taxid:
-    type: File
-  nuclLength:
     type: File
   taxonomy_names:
     type: File
@@ -107,5 +95,5 @@ arguments:
 - position: 5
   valueFrom: step.out
 baseCommand:
-- bash
-- run.sh
+- mpirun
+
